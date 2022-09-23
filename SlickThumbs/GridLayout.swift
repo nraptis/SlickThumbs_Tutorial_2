@@ -2,19 +2,14 @@
 //  GridLayout.swift
 //  SlickThumbs
 //
-//  Created by Nick Raptis on 9/15/22.
+//  Created by Nick Raptis on 9/20/22.
 //
 
 import SwiftUI
 
-protocol ThumbGridConforming: Identifiable {
-    var index: Int { get }
-}
-
-func rangesOverlap(_ start1: Int, _ end1: Int,
-                   _ start2: Int, _ end2: Int) -> Bool {
-    return start1 <= end2 && start2 <= end1
-}
+// Give the view "cells" (cell models) to iterate over (ForEach) (Identifiable)
+// Serve up the frame of each cell
+// Serve up the geometry (size) of the container of all the cells... (Scroll content size)
 
 protocol GridLayoutDelegate: AnyObject {
     func cellsDidEnterScreen(_ startIndex: Int, _ endIndex: Int)
@@ -23,6 +18,7 @@ protocol GridLayoutDelegate: AnyObject {
 
 class GridLayout {
     
+    // Pertaining only to layout, not actual data
     struct ThumbGridCellModel: ThumbGridConforming {
         let index: Int
         var id: Int {
@@ -32,27 +28,23 @@ class GridLayout {
     
     weak var delegate: GridLayoutDelegate?
     
-    private(set) var width: CGFloat = 256
-    private(set) var height: CGFloat = 256
+    private(set) var width: CGFloat = 255
+    private(set) var height: CGFloat = 255
     
     private let maximumCellWidth = 100
-    private let cellHeight = 100
+    private let cellHeight = 140
     
+    private let cellSpacingH = 9
     private let cellPaddingLeft = 24
     private let cellPaddingRight = 24
-    private let cellSpacingH = 9
     
+    private let cellSpacingV = 9
     private let cellPaddingTop = 24
     private let cellPaddingBottom = 128
-    private let cellSpacingV = 9
-    
-    private var _scrollContentFrame = CGRect.zero
-    private var _containerFrameWithoutSafeArea = CGRect.zero
-    private var _containerFrame = CGRect.zero // expanded to include safe area
     
     private var _numberOfElements = 0
-    private var _numberOfRows = 0
     private var _numberOfCols = 0
+    private var _numberOfRows = 0
     private var _cellWidthArray = [Int]()
     private var _cellXArray = [Int]()
     private var _cellYArray = [Int]()
@@ -63,10 +55,17 @@ class GridLayout {
     private var _firstIndexOnScreen = 0
     private var _lastIndexOnScreen = 0
     
+    
+    private var _containerFrame = CGRect.zero
+    private var _containerFrameWithoutSafeArea = CGRect.zero
+    
+    private var _scrollContentFrame = CGRect.zero
+    
     func clear() {
+        
         _numberOfElements = 0
-        _numberOfRows = 0
         _numberOfCols = 0
+        _numberOfRows = 0
         _cellWidthArray = [Int]()
         _cellXArray = [Int]()
         _cellYArray = [Int]()
@@ -78,12 +77,13 @@ class GridLayout {
         _lastIndexOnScreen = 0
     }
     
-    func registerList(_ containerGeometry: GeometryProxy, _ numberOfElements: Int) -> Bool {
+    func registerContainer(_ containerGeometry: GeometryProxy, _ numberOfElements: Int) -> Bool {
         
         var newContainerFrame = containerGeometry.frame(in: .global)
         _containerFrameWithoutSafeArea = newContainerFrame
         
-        // factor in the safe area!!!
+        //expand our container frame to erase the safe area (they are factored in by system)
+        
         let left = containerGeometry.safeAreaInsets.leading
         let right = containerGeometry.safeAreaInsets.trailing
         let top = containerGeometry.safeAreaInsets.top
@@ -91,92 +91,100 @@ class GridLayout {
         
         newContainerFrame = CGRect(x: newContainerFrame.minX - left,
                                    y: newContainerFrame.minY - top,
-                                   width: newContainerFrame.width + left + right,
-                                   height: newContainerFrame.height + top + bottom)
+                                   width: newContainerFrame.width + (left + right),
+                                   height: newContainerFrame.height + (top + bottom))
         
-        if (numberOfElements != _numberOfElements) || (newContainerFrame != _containerFrame) {
+        
+        // Did frame or ele count change?
+        if newContainerFrame != _containerFrame || numberOfElements != _numberOfElements {
+            
             clear()
-            _numberOfElements = numberOfElements
+            
             _containerFrame = newContainerFrame
-            computeSizeAndPopulateGrid()
+            _numberOfElements = numberOfElements
+            
+            // Then we need to layout the 2d grid!!!
+            layoutGrid()
+            
             return true
         }
         
         return false
     }
     
-    func registerContent(_ scrollContentGeometry: GeometryProxy) {
-        let scrollContentFrame = scrollContentGeometry.frame(in: .global)
-        _scrollContentFrame = scrollContentFrame
+    func registerScrollContent(_ scrollContentGeometry: GeometryProxy) {
+        let newScrollContentFrame = scrollContentGeometry.frame(in: .global)
+        _scrollContentFrame = newScrollContentFrame
         handleScrollContentDidChangePosition(_containerFrame, _scrollContentFrame)
     }
     
-    private static let onScreenPadding = -64
-    private func handleScrollContentDidChangePosition(_ containerFrame: CGRect, _ scrollContentFrame: CGRect) {
+    private static let onScreenPadding = -72
+    func handleScrollContentDidChangePosition(_ containerFrame: CGRect, _ scrollContentFrame: CGRect) {
         
         let contentTop = Int(containerFrame.minY - scrollContentFrame.minY) - Self.onScreenPadding
         let contentBottom = Int(containerFrame.maxY - scrollContentFrame.minY) + Self.onScreenPadding
+        let contentRange = contentTop...contentBottom
         
-        var shouldUpdateFirstAndLastIndex = false
+        var shouldRefreshFirstAndLastIndexOnScreen = false
+        
         for rowIndex in 0..<_numberOfRows {
             
             let cellTop = _cellYArray[rowIndex]
             let cellBottom = cellTop + cellHeight
-            let overlap = rangesOverlap(contentTop, contentBottom,
-                                        cellTop, cellBottom)
             
-            let cellStartIndex = index(rowIndex: rowIndex, colIndex: 0)
-            let cellEndIndex = index(rowIndex: rowIndex, colIndex: _numberOfCols - 1)
+            let cellRange = cellTop...cellBottom
+            
+            let overlap = contentRange.overlaps(cellRange)
+            
+            let cellStartIndex = firstIndexOfRow(rowIndex)
+            let cellEndIndex = lastIndexOfRow(rowIndex)
             
             if overlap {
+                //show these cells!
                 if _rowVisible[rowIndex] == false {
                     _rowVisible[rowIndex] = true
-                    
-                    for colIndex in 0..<_numberOfCols {
-                        let cellIndex = index(rowIndex: rowIndex, colIndex: colIndex)
-                        _cellVisible[cellIndex] = true
-                    }
-                    
+                    for cellIndex in cellStartIndex...cellEndIndex { _cellVisible[cellIndex] = true }
                     delegate?.cellsDidEnterScreen(cellStartIndex, cellEndIndex)
-                    shouldUpdateFirstAndLastIndex = true
+                    shouldRefreshFirstAndLastIndexOnScreen = true
                 }
             } else {
+                //hide these cells!
                 
                 if _rowVisible[rowIndex] == true {
                     _rowVisible[rowIndex] = false
-                    
-                    for colIndex in 0..<_numberOfCols {
-                        let cellIndex = index(rowIndex: rowIndex, colIndex: colIndex)
-                        _cellVisible[cellIndex] = false
-                    }
-                    
+                    for cellIndex in cellStartIndex...cellEndIndex { _cellVisible[cellIndex] = false }
                     delegate?.cellsDidLeaveScreen(cellStartIndex, cellEndIndex)
-                    shouldUpdateFirstAndLastIndex = true
+                    shouldRefreshFirstAndLastIndexOnScreen = true
                 }
             }
         }
-        if shouldUpdateFirstAndLastIndex {
-            refreshFirstAndLastIndex()
+        
+        if shouldRefreshFirstAndLastIndexOnScreen {
+            refreshFirstAndLastIndexOnScreen()
         }
+        
     }
     
-    func computeSizeAndPopulateGrid() {
+    private func layoutGrid() {
         _numberOfCols = numberOfCols()
-        _numberOfRows = numberOfRows() // this depends on _numberOfCols
-        _cellWidthArray = cellWidthArray() // this depends on _numberOfCols
-        
-        width = round(_containerFrameWithoutSafeArea.width)
-        height = CGFloat((_numberOfRows * cellHeight) + (cellPaddingTop + cellPaddingBottom))
-        if _numberOfRows > 1 {
-            height += CGFloat((_numberOfRows - 1) * cellSpacingV)
-        }
+        _numberOfRows = numberOfRows()
+        _cellWidthArray = cellWidthArray()
         
         buildXArray()
         buildYArray()
-        buildVisibilityArrays()
+        buildVisibityArrays()
+        
+        width = _containerFrame.width
+        height = CGFloat((_numberOfRows * cellHeight) + (cellPaddingTop + cellPaddingBottom))
+        
+        //add the vertical spacing between the cells!!!
+        if _numberOfRows > 1 {
+            height += CGFloat((_numberOfRows - 1) * cellSpacingV)
+        }
     }
     
     private func buildXArray() {
+        
         if _cellXArray.count != _numberOfCols {
             _cellXArray = [Int](repeating: 0, count: _numberOfCols)
         }
@@ -185,13 +193,15 @@ class GridLayout {
         var indexX = 0
         while indexX < _numberOfCols {
             _cellXArray[indexX] = cellX
+            
+            //advance cell x...
             cellX += _cellWidthArray[indexX] + cellSpacingH
             indexX += 1
         }
+        
     }
     
     private func buildYArray() {
-        
         if _cellYArray.count != _numberOfRows {
             _cellYArray = [Int](repeating: 0, count: _numberOfRows)
         }
@@ -200,52 +210,67 @@ class GridLayout {
         var indexY = 0
         while indexY < _numberOfRows {
             _cellYArray[indexY] = cellY
+            
+            //advance cell y...
             cellY += cellHeight + cellSpacingV
             indexY += 1
         }
     }
     
-    private func buildVisibilityArrays() {
-        let numberOfCells = _numberOfCols * _numberOfRows
-        if _cellVisible.count != numberOfCells {
-            _cellVisible = [Bool](repeating: false, count: numberOfCells)
-        }
+    private func buildVisibityArrays() {
         
-        if _rowVisible.count != _numberOfRows {
+        if (_rowVisible.count) != _numberOfRows {
             _rowVisible = [Bool](repeating: false, count: _numberOfRows)
         }
-    }
-    
-    func isAnyRowVisible() -> Bool {
-        for rowIndex in 0..<_numberOfRows {
-            if _rowVisible[rowIndex] {
-                return true
-            }
-        }
-        return false
-    }
-    
-    func refreshFirstAndLastIndex() {
         
+        let numberOfCells = _numberOfRows * _numberOfCols
+        if (_cellVisible.count) != numberOfCells {
+            _cellVisible = [Bool](repeating: false, count: numberOfCells)
+        }
+    }
+    
+    func firstIndexOfRow(_ rowIndex: Int) -> Int {
+        return _numberOfCols * rowIndex
+    }
+    
+    func lastIndexOfRow(_ rowIndex: Int) -> Int {
+        return (_numberOfCols * rowIndex) + (_numberOfCols - 1)
+    }
+    
+    func firstIndexOnScreen() -> Int {
+        return _firstIndexOnScreen
+    }
+    
+    func lastIndexOnScreen() -> Int {
+        return _lastIndexOnScreen
+    }
+    
+    func refreshFirstAndLastIndexOnScreen() {
         _firstIndexOnScreen = 0
         _lastIndexOnScreen = 0
-        
         var found = false
         for rowIndex in 0..<_numberOfRows {
             if _rowVisible[rowIndex] {
                 if found == false {
                     found = true
-                    _firstIndexOnScreen = firstIndexOnRow(rowIndex)
-                    _lastIndexOnScreen = lastIndexOnRow(rowIndex)
+                    _firstIndexOnScreen = firstIndexOfRow(rowIndex)
+                    _lastIndexOnScreen = lastIndexOfRow(rowIndex)
                 } else {
-                    _lastIndexOnScreen = lastIndexOnRow(rowIndex)
+                    _lastIndexOnScreen = lastIndexOfRow(rowIndex)
                 }
             }
         }
     }
     
+    func isAnyRowVisible() -> Bool {
+        for rowIndex in 0..<_numberOfRows {
+            if _rowVisible[rowIndex] { return true }
+        }
+        return false
+    }
+    
     func index(rowIndex: Int, colIndex: Int) -> Int {
-        return rowIndex * _numberOfCols + colIndex
+        return (_numberOfCols * rowIndex) + colIndex
     }
     
     func col(index: Int) -> Int {
@@ -262,156 +287,138 @@ class GridLayout {
         return 0
     }
     
-    private func firstIndexOnRow(_ rowIndex: Int) -> Int {
-        return _numberOfCols * rowIndex
-    }
-    
-    private func lastIndexOnRow(_ rowIndex: Int) -> Int {
-        return (_numberOfCols * rowIndex) + (_numberOfCols - 1)
-    }
-    
-    func firstIndexOnScreen() -> Int {
-        return _firstIndexOnScreen
-    }
-    
-    func lastIndexOnScreen() -> Int {
-        return _lastIndexOnScreen
-    }
     
     private var _allVisibleCellModels = [ThumbGridCellModel]()
     func getAllVisibleCellModels() -> [ThumbGridCellModel] {
         
         _allVisibleCellModels.removeAll(keepingCapacity: true)
+        
         for index in 0..<_numberOfElements {
-            if _cellVisible[index] {
-                _allVisibleCellModels.append(ThumbGridCellModel(index: index))
+            if index < _cellVisible.count, _cellVisible[index] == true {
+                let newCellModel = ThumbGridCellModel(index: index)
+                _allVisibleCellModels.append(newCellModel)
             }
         }
         
         return _allVisibleCellModels
     }
-    
-    
 }
 
+// UI Helpers for cell frame
 extension GridLayout {
+    
+    //x, y, width, height
+    
     func getX(_ index: Int) -> CGFloat {
-        let colIndex = col(index: index)
-        if colIndex < 0 {
-            if _cellXArray.count > 0 {
-                return CGFloat(_cellXArray[0])
-            }
-            return 0
-        }
-        if colIndex >= _cellXArray.count {
-            if _cellXArray.count > 0 {
-                return CGFloat(_cellXArray[_cellXArray.count - 1])
-            }
-            return 0
-        }
         
-        return CGFloat(_cellXArray[colIndex])
+        var colIndex = col(index: index)
+        if _cellXArray.count > 0 {
+            colIndex = min(colIndex, _cellXArray.count - 1)
+            colIndex = max(colIndex, 0)
+            return CGFloat(_cellXArray[colIndex])
+        }
+        return 0
     }
     
     func getY(_ index: Int) -> CGFloat {
-        let rowIndex = row(index: index)
-        if rowIndex < 0 {
-            if _cellYArray.count > 0 {
-                return CGFloat(_cellYArray[0])
-            }
-            return 0
+        var rowIndex = row(index: index)
+        if _cellYArray.count > 0 {
+            rowIndex = min(rowIndex, _cellYArray.count - 1)
+            rowIndex = max(rowIndex, 0)
+            return CGFloat(_cellYArray[rowIndex])
         }
-        if rowIndex >= _cellYArray.count {
-            if _cellYArray.count > 0 {
-                return CGFloat(_cellYArray[_cellYArray.count - 1])
-            }
-            return 0
-        }
-        
-        return CGFloat(_cellYArray[rowIndex])
+        return 0
     }
     
     func getWidth(_ index: Int) -> CGFloat {
-        let colIndex = col(index: index)
-        if colIndex < 0 {
-            if _cellWidthArray.count > 0 {
-                return CGFloat(_cellWidthArray[0])
-            }
-            return 0
+        var colIndex = col(index: index)
+        if _cellWidthArray.count > 0 {
+            colIndex = min(colIndex, _cellWidthArray.count - 1)
+            colIndex = max(colIndex, 0)
+            return CGFloat(_cellWidthArray[colIndex])
         }
-        if colIndex >= _cellWidthArray.count {
-            if _cellWidthArray.count > 0 {
-                return CGFloat(_cellWidthArray[_cellWidthArray.count - 1])
-            }
-            return 0
-        }
-        return CGFloat(_cellWidthArray[colIndex])
+        return 0
     }
     
     func getHeight(_ index: Int) -> CGFloat {
-        return CGFloat(cellHeight)
+        CGFloat(cellHeight)
     }
 }
 
+// internal stuff for computing 2d grid stuff
 extension GridLayout {
     
     private func numberOfCols() -> Int {
         
-        let screenWidth = _containerFrameWithoutSafeArea.width - CGFloat(cellPaddingLeft + cellPaddingRight)
-        var result = 1
+        if _numberOfElements <= 0 { return 0 }
         
+        let availableWidth = _containerFrameWithoutSafeArea.width - CGFloat(cellPaddingLeft + cellPaddingRight)
+        var result = 1
         var horizontalCount = 2
-        while true {
+        
+        while horizontalCount < 1024 {
+            //consider the space between the cells...
+            let totalSpaceWidth = CGFloat(cellSpacingH * (horizontalCount - 1))
             
-            let totalSpacingWidth = CGFloat((horizontalCount - 1) * cellSpacingH)
-            let totalSpaceForCells = screenWidth - totalSpacingWidth
+            //how much space is available for the actual content of the cells
+            let totalSpaceForCells = availableWidth - totalSpaceWidth
             let expectedCellWidth = totalSpaceForCells / CGFloat(horizontalCount)
-            
             if expectedCellWidth < CGFloat(maximumCellWidth) {
+                //we found a small enoguh size to be smaller than
+                //the maximum size we allow our cells to be!
                 break
             } else {
+                //try more cells! (they will be smaller next time)
                 result = horizontalCount
                 horizontalCount += 1
             }
         }
-        
         return result
     }
     
-    private func numberOfRows() -> Int {
-        var result = _numberOfElements / _numberOfCols
-        if (_numberOfElements % _numberOfCols) != 0 { result += 1 }
-        return result
+    private func numberOfRows() -> Int { // depends on number of cols being computed...
+        
+        if _numberOfCols > 0 {
+            var result = _numberOfElements / _numberOfCols
+            if (_numberOfElements % _numberOfCols) != 0 { result += 1 }
+            return result
+            // x x x
+            // x x x
+            // x
+        }
+        return 0
     }
     
     private func cellWidthArray() -> [Int] {
-        
         var result = [Int]()
         
-        var totalSpace = Int(_containerFrameWithoutSafeArea.width)
-        totalSpace -= cellPaddingLeft
-        totalSpace -= cellPaddingRight
+        if _numberOfCols <= 0 { return result }
         
+        //keep track of how much space we used so far!!!
+        var totalSpace = Int(_containerFrameWithoutSafeArea.width) - (cellPaddingLeft + cellPaddingRight)
+        
+        //eliminate the space between cells...
         if _numberOfCols > 1 {
-            totalSpace -= ((_numberOfCols - 1) * cellSpacingH)
+            totalSpace -= (_numberOfCols - 1) * cellSpacingH
         }
         
         let baseWidth = totalSpace / _numberOfCols
+        
         for _ in 0..<_numberOfCols {
             result.append(baseWidth)
             totalSpace -= baseWidth
         }
         
-        //we might have a little bit of space left over
-        //evenly distribute the remaining space
+        // There might be a little bit of totalSpace left...
         
         while totalSpace > 0 {
-            for i in 0..<_numberOfCols {
-                result[i] += 1
+            
+            //evenly distribute the remaining space
+            //among the widths of the cells...
+            for colIndex in 0..<_numberOfCols {
+                result[colIndex] += 1
                 totalSpace -= 1
-                if totalSpace <= 0 {
-                    break
-                }
+                if totalSpace <= 0 { break }
             }
         }
         

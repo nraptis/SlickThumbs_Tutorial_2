@@ -2,12 +2,16 @@
 //  ThumbGrid.swift
 //  SlickThumbs
 //
-//  Created by Nick Raptis on 9/15/22.
+//  Created by Nick Raptis on 9/20/22.
 //
 
 import SwiftUI
 
-struct ThumbGrid<Item, ItemView> : View where ItemView: View, Item: ThumbGridConforming {
+protocol ThumbGridConforming: Identifiable {
+    var index: Int { get }
+}
+
+struct ThumbGrid<Item, ItemView>: View where ItemView: View, Item: ThumbGridConforming {
     
     let items: [Item]
     let layout: GridLayout
@@ -16,8 +20,7 @@ struct ThumbGrid<Item, ItemView> : View where ItemView: View, Item: ThumbGridCon
     func thumb(item: Item) -> some View {
         let x = layout.getX(item.index)
         let y = layout.getY(item.index)
-        return content(item)
-            .offset(x: x, y: y)
+        return content(item).offset(x: x, y: y)
     }
     
     var body: some View {

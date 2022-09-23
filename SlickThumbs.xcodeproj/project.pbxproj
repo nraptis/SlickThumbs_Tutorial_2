@@ -7,34 +7,34 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0DAE105728D3A37300311BAE /* SlickThumbsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAE105628D3A37300311BAE /* SlickThumbsApp.swift */; };
-		0DAE105B28D3A37700311BAE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0DAE105A28D3A37700311BAE /* Assets.xcassets */; };
-		0DAE105E28D3A37700311BAE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0DAE105D28D3A37700311BAE /* Preview Assets.xcassets */; };
-		0DAE106528D3A3AE00311BAE /* MyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAE106428D3A3AE00311BAE /* MyPageView.swift */; };
-		0DAE106728D3A3C000311BAE /* MyPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAE106628D3A3C000311BAE /* MyPageViewModel.swift */; };
-		0DAE106928D3A3CA00311BAE /* MyPageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAE106828D3A3CA00311BAE /* MyPageModel.swift */; };
-		0DAE106B28D3A5DB00311BAE /* GridLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAE106A28D3A5DB00311BAE /* GridLayout.swift */; };
-		0DAE106D28D3B17200311BAE /* ThumbGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAE106C28D3B17200311BAE /* ThumbGrid.swift */; };
-		0DAE109B28D3E01700311BAE /* ThumbModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAE109A28D3E01700311BAE /* ThumbModel.swift */; };
-		0DAE109D28D3E35700311BAE /* ThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DAE109C28D3E35700311BAE /* ThumbView.swift */; };
+		0DEE170328DA7C330035C80D /* SlickThumbsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEE170228DA7C330035C80D /* SlickThumbsApp.swift */; };
+		0DEE170728DA7C340035C80D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0DEE170628DA7C340035C80D /* Assets.xcassets */; };
+		0DEE170A28DA7C340035C80D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0DEE170928DA7C340035C80D /* Preview Assets.xcassets */; };
+		0DEE171128DA7C730035C80D /* MyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEE171028DA7C730035C80D /* MyPageView.swift */; };
+		0DEE171328DA7C890035C80D /* MyPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEE171228DA7C890035C80D /* MyPageViewModel.swift */; };
+		0DEE171528DA7C930035C80D /* MyPageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEE171428DA7C930035C80D /* MyPageModel.swift */; };
+		0DEE171728DA7F1E0035C80D /* GridLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEE171628DA7F1E0035C80D /* GridLayout.swift */; };
+		0DEE171928DA8C750035C80D /* ThumbGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DEE171828DA8C750035C80D /* ThumbGrid.swift */; };
+		0DFF17C228DD344A00B8B1CA /* ThumbModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DFF17C128DD344A00B8B1CA /* ThumbModel.swift */; };
+		0DFF17C428DD379900B8B1CA /* ThumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DFF17C328DD379900B8B1CA /* ThumbView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0DAE105328D3A37300311BAE /* SlickThumbs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlickThumbs.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0DAE105628D3A37300311BAE /* SlickThumbsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlickThumbsApp.swift; sourceTree = "<group>"; };
-		0DAE105A28D3A37700311BAE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0DAE105D28D3A37700311BAE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		0DAE106428D3A3AE00311BAE /* MyPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageView.swift; sourceTree = "<group>"; };
-		0DAE106628D3A3C000311BAE /* MyPageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageViewModel.swift; sourceTree = "<group>"; };
-		0DAE106828D3A3CA00311BAE /* MyPageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageModel.swift; sourceTree = "<group>"; };
-		0DAE106A28D3A5DB00311BAE /* GridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridLayout.swift; sourceTree = "<group>"; };
-		0DAE106C28D3B17200311BAE /* ThumbGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbGrid.swift; sourceTree = "<group>"; };
-		0DAE109A28D3E01700311BAE /* ThumbModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbModel.swift; sourceTree = "<group>"; };
-		0DAE109C28D3E35700311BAE /* ThumbView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbView.swift; sourceTree = "<group>"; };
+		0DEE16FF28DA7C330035C80D /* SlickThumbs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlickThumbs.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0DEE170228DA7C330035C80D /* SlickThumbsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlickThumbsApp.swift; sourceTree = "<group>"; };
+		0DEE170628DA7C340035C80D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0DEE170928DA7C340035C80D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		0DEE171028DA7C730035C80D /* MyPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageView.swift; sourceTree = "<group>"; };
+		0DEE171228DA7C890035C80D /* MyPageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageViewModel.swift; sourceTree = "<group>"; };
+		0DEE171428DA7C930035C80D /* MyPageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageModel.swift; sourceTree = "<group>"; };
+		0DEE171628DA7F1E0035C80D /* GridLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridLayout.swift; sourceTree = "<group>"; };
+		0DEE171828DA8C750035C80D /* ThumbGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbGrid.swift; sourceTree = "<group>"; };
+		0DFF17C128DD344A00B8B1CA /* ThumbModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbModel.swift; sourceTree = "<group>"; };
+		0DFF17C328DD379900B8B1CA /* ThumbView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		0DAE105028D3A37300311BAE /* Frameworks */ = {
+		0DEE16FC28DA7C330035C80D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -44,43 +44,43 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0DAE104A28D3A37300311BAE = {
+		0DEE16F628DA7C330035C80D = {
 			isa = PBXGroup;
 			children = (
-				0DAE105528D3A37300311BAE /* SlickThumbs */,
-				0DAE105428D3A37300311BAE /* Products */,
+				0DEE170128DA7C330035C80D /* SlickThumbs */,
+				0DEE170028DA7C330035C80D /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		0DAE105428D3A37300311BAE /* Products */ = {
+		0DEE170028DA7C330035C80D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0DAE105328D3A37300311BAE /* SlickThumbs.app */,
+				0DEE16FF28DA7C330035C80D /* SlickThumbs.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		0DAE105528D3A37300311BAE /* SlickThumbs */ = {
+		0DEE170128DA7C330035C80D /* SlickThumbs */ = {
 			isa = PBXGroup;
 			children = (
-				0DAE109C28D3E35700311BAE /* ThumbView.swift */,
-				0DAE109A28D3E01700311BAE /* ThumbModel.swift */,
-				0DAE106C28D3B17200311BAE /* ThumbGrid.swift */,
-				0DAE106A28D3A5DB00311BAE /* GridLayout.swift */,
-				0DAE106428D3A3AE00311BAE /* MyPageView.swift */,
-				0DAE106628D3A3C000311BAE /* MyPageViewModel.swift */,
-				0DAE106828D3A3CA00311BAE /* MyPageModel.swift */,
-				0DAE105628D3A37300311BAE /* SlickThumbsApp.swift */,
-				0DAE105A28D3A37700311BAE /* Assets.xcassets */,
-				0DAE105C28D3A37700311BAE /* Preview Content */,
+				0DFF17C328DD379900B8B1CA /* ThumbView.swift */,
+				0DFF17C128DD344A00B8B1CA /* ThumbModel.swift */,
+				0DEE171828DA8C750035C80D /* ThumbGrid.swift */,
+				0DEE171628DA7F1E0035C80D /* GridLayout.swift */,
+				0DEE171028DA7C730035C80D /* MyPageView.swift */,
+				0DEE171228DA7C890035C80D /* MyPageViewModel.swift */,
+				0DEE171428DA7C930035C80D /* MyPageModel.swift */,
+				0DEE170228DA7C330035C80D /* SlickThumbsApp.swift */,
+				0DEE170628DA7C340035C80D /* Assets.xcassets */,
+				0DEE170828DA7C340035C80D /* Preview Content */,
 			);
 			path = SlickThumbs;
 			sourceTree = "<group>";
 		};
-		0DAE105C28D3A37700311BAE /* Preview Content */ = {
+		0DEE170828DA7C340035C80D /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				0DAE105D28D3A37700311BAE /* Preview Assets.xcassets */,
+				0DEE170928DA7C340035C80D /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
 			sourceTree = "<group>";
@@ -88,13 +88,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0DAE105228D3A37300311BAE /* SlickThumbs */ = {
+		0DEE16FE28DA7C330035C80D /* SlickThumbs */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0DAE106128D3A37700311BAE /* Build configuration list for PBXNativeTarget "SlickThumbs" */;
+			buildConfigurationList = 0DEE170D28DA7C340035C80D /* Build configuration list for PBXNativeTarget "SlickThumbs" */;
 			buildPhases = (
-				0DAE104F28D3A37300311BAE /* Sources */,
-				0DAE105028D3A37300311BAE /* Frameworks */,
-				0DAE105128D3A37300311BAE /* Resources */,
+				0DEE16FB28DA7C330035C80D /* Sources */,
+				0DEE16FC28DA7C330035C80D /* Frameworks */,
+				0DEE16FD28DA7C330035C80D /* Resources */,
 			);
 			buildRules = (
 			);
@@ -102,25 +102,25 @@
 			);
 			name = SlickThumbs;
 			productName = SlickThumbs;
-			productReference = 0DAE105328D3A37300311BAE /* SlickThumbs.app */;
+			productReference = 0DEE16FF28DA7C330035C80D /* SlickThumbs.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		0DAE104B28D3A37300311BAE /* Project object */ = {
+		0DEE16F728DA7C330035C80D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1320;
 				LastUpgradeCheck = 1320;
 				TargetAttributes = {
-					0DAE105228D3A37300311BAE = {
+					0DEE16FE28DA7C330035C80D = {
 						CreatedOnToolsVersion = 13.2.1;
 					};
 				};
 			};
-			buildConfigurationList = 0DAE104E28D3A37300311BAE /* Build configuration list for PBXProject "SlickThumbs" */;
+			buildConfigurationList = 0DEE16FA28DA7C330035C80D /* Build configuration list for PBXProject "SlickThumbs" */;
 			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -128,48 +128,48 @@
 				en,
 				Base,
 			);
-			mainGroup = 0DAE104A28D3A37300311BAE;
-			productRefGroup = 0DAE105428D3A37300311BAE /* Products */;
+			mainGroup = 0DEE16F628DA7C330035C80D;
+			productRefGroup = 0DEE170028DA7C330035C80D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0DAE105228D3A37300311BAE /* SlickThumbs */,
+				0DEE16FE28DA7C330035C80D /* SlickThumbs */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		0DAE105128D3A37300311BAE /* Resources */ = {
+		0DEE16FD28DA7C330035C80D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DAE105E28D3A37700311BAE /* Preview Assets.xcassets in Resources */,
-				0DAE105B28D3A37700311BAE /* Assets.xcassets in Resources */,
+				0DEE170A28DA7C340035C80D /* Preview Assets.xcassets in Resources */,
+				0DEE170728DA7C340035C80D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		0DAE104F28D3A37300311BAE /* Sources */ = {
+		0DEE16FB28DA7C330035C80D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0DAE105728D3A37300311BAE /* SlickThumbsApp.swift in Sources */,
-				0DAE106528D3A3AE00311BAE /* MyPageView.swift in Sources */,
-				0DAE106B28D3A5DB00311BAE /* GridLayout.swift in Sources */,
-				0DAE109B28D3E01700311BAE /* ThumbModel.swift in Sources */,
-				0DAE106728D3A3C000311BAE /* MyPageViewModel.swift in Sources */,
-				0DAE109D28D3E35700311BAE /* ThumbView.swift in Sources */,
-				0DAE106D28D3B17200311BAE /* ThumbGrid.swift in Sources */,
-				0DAE106928D3A3CA00311BAE /* MyPageModel.swift in Sources */,
+				0DEE170328DA7C330035C80D /* SlickThumbsApp.swift in Sources */,
+				0DEE171128DA7C730035C80D /* MyPageView.swift in Sources */,
+				0DEE171728DA7F1E0035C80D /* GridLayout.swift in Sources */,
+				0DFF17C228DD344A00B8B1CA /* ThumbModel.swift in Sources */,
+				0DEE171328DA7C890035C80D /* MyPageViewModel.swift in Sources */,
+				0DFF17C428DD379900B8B1CA /* ThumbView.swift in Sources */,
+				0DEE171928DA8C750035C80D /* ThumbGrid.swift in Sources */,
+				0DEE171528DA7C930035C80D /* MyPageModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		0DAE105F28D3A37700311BAE /* Debug */ = {
+		0DEE170B28DA7C340035C80D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -230,7 +230,7 @@
 			};
 			name = Debug;
 		};
-		0DAE106028D3A37700311BAE /* Release */ = {
+		0DEE170C28DA7C340035C80D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -285,7 +285,7 @@
 			};
 			name = Release;
 		};
-		0DAE106228D3A37700311BAE /* Debug */ = {
+		0DEE170E28DA7C340035C80D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -314,7 +314,7 @@
 			};
 			name = Debug;
 		};
-		0DAE106328D3A37700311BAE /* Release */ = {
+		0DEE170F28DA7C340035C80D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -346,25 +346,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0DAE104E28D3A37300311BAE /* Build configuration list for PBXProject "SlickThumbs" */ = {
+		0DEE16FA28DA7C330035C80D /* Build configuration list for PBXProject "SlickThumbs" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0DAE105F28D3A37700311BAE /* Debug */,
-				0DAE106028D3A37700311BAE /* Release */,
+				0DEE170B28DA7C340035C80D /* Debug */,
+				0DEE170C28DA7C340035C80D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0DAE106128D3A37700311BAE /* Build configuration list for PBXNativeTarget "SlickThumbs" */ = {
+		0DEE170D28DA7C340035C80D /* Build configuration list for PBXNativeTarget "SlickThumbs" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				0DAE106228D3A37700311BAE /* Debug */,
-				0DAE106328D3A37700311BAE /* Release */,
+				0DEE170E28DA7C340035C80D /* Debug */,
+				0DEE170F28DA7C340035C80D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 0DAE104B28D3A37300311BAE /* Project object */;
+	rootObject = 0DEE16F728DA7C330035C80D /* Project object */;
 }

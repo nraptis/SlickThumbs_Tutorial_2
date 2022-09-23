@@ -2,80 +2,125 @@
 //  MyPageViewModel.swift
 //  SlickThumbs
 //
-//  Created by Nick Raptis on 9/15/22.
+//  Created by Nick Raptis on 9/20/22.
 //
 
 import SwiftUI
 
 class MyPageViewModel: ObservableObject {
     
-    private var isFetching = false
-    
     private static let fetchCount = 6
-    private static let probeRangeForFetchingMoreThumbs = 5
+    private static let probeRangeForFetchingMoreCells = 5
+    
+    private(set) var isFetching = false
     
     static func mock() -> MyPageViewModel {
         return MyPageViewModel()
     }
+    
+    let layout = GridLayout()
+    private let model = MyPageModel()
     
     init() {
         layout.delegate = self
         fetch(at: 4, withCount: Self.fetchCount) { _ in }
     }
     
-    let layout = GridLayout()
-    let model = MyPageModel()
-    
-    func thumbModel(at index: Int) -> ThumbModel? {
-        return model.thumbModel(at: index)
+    func numberOfThumbCells() -> Int {
+        return 118
     }
     
     func clear() {
         model.clear()
     }
     
-    func fetch(at index: Int, withCount count: Int, completion: @escaping (Result<Void, ThumbError>) -> Void) {
-        fetch(at: index, withCount: count, attempts: 1, completion: completion)
+    func thumbModel(at index: Int) -> ThumbModel? {
+        return model.thumbModel(at: index)
     }
     
-    func fetch(at index: Int, withCount count: Int, attempts attemptCount: Int, completion: @escaping (Result<Void, ThumbError>) -> Void) {
-        
+    func fetch(at index: Int, withCount count: Int, completion: @escaping ( Result<Void, ThumbError> ) -> Void) {
+     
         isFetching = true
-        
-        model.fetch(at: index, withCount: count) { modelResult in
+        model.fetch(at: index, withCount: count) { result in
             
-            switch modelResult {
+            switch result {
+                
             case .success:
                 self.isFetching = false
-                self.objectWillChange.send()
                 completion(.success(()))
+                self.objectWillChange.send()
                 self.fetchMoreThumbsIfNecessary()
-                
             case .failure(let error):
-                if attemptCount < 3 {
-                    self.fetch(at: index, withCount: count, attempts: attemptCount + 1, completion: completion)
-                } else {
-                    print("web service failed 3 times! \(error.localizedDescription)")
-                    self.isFetching = false
-                    self.objectWillChange.send()
-                    completion(.failure(error))
-                }
+                self.isFetching = false
+                completion(.failure(error))
+                self.objectWillChange.send()
             }
         }
     }
     
-    private func refreshInline() {
+    // This may be called very often...
+    fileprivate func fetchMoreThumbsIfNecessary() {
         
-        let g = DispatchGroup()
+        if isFetching { return }
+        if !layout.isAnyRowVisible() { return }
         
-        g.enter()
-        self.fetch(at: 4, withCount: Self.fetchCount) { _ in
-            g.leave()
+        let firstIndexOnScreen = layout.firstIndexOnScreen()
+        let lastIndexOnScreen = layout.lastIndexOnScreen()
+        
+        //case 1: the visible cells on screen!
+        
+        var checkIndex = firstIndexOnScreen
+        while checkIndex <= lastIndexOnScreen {
+            if checkIndex >= 0 && checkIndex < model.totalExpectedCount {
+                //if the thumb model is missing, go ahead and fetch starting at checkIndex...
+                if model.thumbModel(at: checkIndex) == nil {
+                    fetch(at: checkIndex, withCount: Self.fetchCount) { _ in }
+                    return
+                }
+            }
+            checkIndex += 1
         }
-        g.wait()
+        
+        // case 2: a little bit after the screen's visible indices
+        checkIndex = lastIndexOnScreen + 1
+        while checkIndex < (lastIndexOnScreen + Self.probeRangeForFetchingMoreCells) {
+            if checkIndex >= 0 && checkIndex < model.totalExpectedCount {
+                //if the thumb model is missing, go ahead and fetch starting at checkIndex...
+                if model.thumbModel(at: checkIndex) == nil {
+                    fetch(at: checkIndex, withCount: Self.fetchCount) { _ in }
+                    return
+                }
+            }
+            checkIndex += 1
+        }
+        
+        // case 2: a little bit before the screen's visible indices
+        checkIndex = firstIndexOnScreen - Self.probeRangeForFetchingMoreCells
+        while checkIndex < firstIndexOnScreen {
+            if checkIndex >= 0 && checkIndex < model.totalExpectedCount {
+                //if the thumb model is missing, go ahead and fetch starting at checkIndex...
+                if model.thumbModel(at: checkIndex) == nil {
+                    fetch(at: checkIndex, withCount: Self.fetchCount) { _ in }
+                    return
+                }
+            }
+            checkIndex += 1
+        }
     }
     
-    private func postUpdate() {
+    private func refreshInline() {
+        let dispatchGroup = DispatchGroup()
+        dispatchGroup.enter()
+        fetch(at: 0, withCount: Self.fetchCount) { _ in
+            dispatchGroup.leave()
+        }
+        dispatchGroup.wait()
+    }
+    
+    func refresh() async {
+        
+        clear()
+        
         if Thread.isMainThread {
             objectWillChange.send()
         } else {
@@ -83,65 +128,11 @@ class MyPageViewModel: ObservableObject {
                 self.objectWillChange.send()
             }
         }
-    }
-    
-    func refresh() async {
-        clear()
-        postUpdate()
         
         let t = Task.detached {
             self.refreshInline()
         }
-        
         _ = await t.result
-        postUpdate()
-    }
-    
-    private func fetchMoreThumbsIfNecessary() {
-        // what we want ... "first index on screen" / "last index on screen"
-        
-        if isFetching { return }
-        if layout.isAnyRowVisible() == false { return }
-        
-        let firstIndexOnScreen = layout.firstIndexOnScreen()
-        let lastIndexOnScreen = layout.lastIndexOnScreen()
-        
-        // are we missing anything in our visible range?
-        
-        var checkIndex = firstIndexOnScreen
-        while checkIndex <= lastIndexOnScreen {
-            if checkIndex >= 0 && checkIndex < model.totalExpectedCount {
-                if model.thumbModel(at: checkIndex) == nil {
-                    fetch(at: checkIndex, withCount: Self.fetchCount) { _ in }
-                    return
-                }
-            }
-            checkIndex += 1
-        }
-        
-        // are we missing anything AFTER our visible range?
-        checkIndex = lastIndexOnScreen + 1
-        while checkIndex < (lastIndexOnScreen + Self.probeRangeForFetchingMoreThumbs) {
-            if checkIndex >= 0 && checkIndex < model.totalExpectedCount {
-                if model.thumbModel(at: checkIndex) == nil {
-                    fetch(at: checkIndex, withCount: Self.fetchCount) { _ in }
-                    return
-                }
-            }
-            checkIndex += 1
-        }
-        
-        // are we missing anything AFTER our visible range?
-        checkIndex = firstIndexOnScreen - Self.probeRangeForFetchingMoreThumbs
-        while checkIndex < firstIndexOnScreen {
-            if checkIndex >= 0 && checkIndex < model.totalExpectedCount {
-                if model.thumbModel(at: checkIndex) == nil {
-                    fetch(at: checkIndex, withCount: Self.fetchCount) { _ in }
-                    return
-                }
-            }
-            checkIndex += 1
-        }
     }
     
 }
@@ -155,5 +146,4 @@ extension MyPageViewModel: GridLayoutDelegate {
     func cellsDidLeaveScreen(_ startIndex: Int, _ endIndex: Int) {
         fetchMoreThumbsIfNecessary()
     }
-    
 }

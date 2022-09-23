@@ -2,7 +2,7 @@
 //  ThumbView.swift
 //  SlickThumbs
 //
-//  Created by Nick Raptis on 9/15/22.
+//  Created by Nick Raptis on 9/22/22.
 //
 
 import SwiftUI
@@ -14,28 +14,24 @@ struct ThumbView: View {
     let width: CGFloat
     let height: CGFloat
     
-    private let cellShape = RoundedRectangle(cornerRadius: 12)
+    private let shape = RoundedRectangle(cornerRadius: 12)
     
-    private func progressView() -> some View {
-        return ProgressView()
-            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-    }
-    
-    private func thumbContent(_ model: ThumbModel) -> some View {
+    private func thumbContent(_ thumbModel: ThumbModel) -> some View {
         ZStack {
-            Text(model.image)
+            Text("\(thumbModel.image)")
                 .font(.system(size: width * 0.5))
         }
         .frame(width: width, height: height)
-        .background(cellShape.fill().foregroundColor(.orange).opacity(0.5))
+        .background(shape.fill().foregroundColor(.orange).opacity(0.5))
     }
     
     private func placeholderContent() -> some View {
         ZStack {
-            progressView()
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: .white))
         }
         .frame(width: width, height: height)
-        .background(cellShape.fill().foregroundColor(.purple).opacity(0.5))
+        .background(shape.fill().foregroundColor(.purple).opacity(0.5))
     }
     
     @ViewBuilder
@@ -52,7 +48,7 @@ struct ThumbView_Previews: PreviewProvider {
     static var previews: some View {
         ThumbView(viewModel: MyPageViewModel.mock(),
                   index: 0,
-                  width: 64,
-                  height: 80)
+                  width: 100,
+                  height: 140)
     }
 }

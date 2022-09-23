@@ -2,13 +2,12 @@
 //  MyPageView.swift
 //  SlickThumbs
 //
-//  Created by Nick Raptis on 9/15/22.
+//  Created by Nick Raptis on 9/20/22.
 //
 
 import SwiftUI
 
 struct MyPageView: View {
-    
     @ObservedObject var viewModel: MyPageViewModel
     var body: some View {
         GeometryReader { containerGeometry in
@@ -19,15 +18,13 @@ struct MyPageView: View {
         }
     }
     
-    func grid(_ containerGeometry: GeometryProxy, _ scrollContentGeometry: GeometryProxy) -> some View {
+    private func grid(_ containerGeometry: GeometryProxy, _ scrollContentGeometry: GeometryProxy) -> some View {
         
         let layout = viewModel.layout
-        
-        layout.registerContent(scrollContentGeometry)
-        
+        layout.registerScrollContent(scrollContentGeometry)
         let visibleCells = layout.getAllVisibleCellModels()
         
-        return ThumbGrid(items: visibleCells, layout: viewModel.layout) { cellModel in
+        return ThumbGrid(items: visibleCells, layout: layout) { cellModel in
             ThumbView(viewModel: viewModel,
                       index: cellModel.index,
                       width: layout.getWidth(cellModel.index),
@@ -35,9 +32,11 @@ struct MyPageView: View {
         }
     }
     
-    func list(_ containerGeometry: GeometryProxy) -> some View {
+    private func list(_ containerGeometry: GeometryProxy) -> some View {
+        let layout = viewModel.layout
         
-        if viewModel.layout.registerList(containerGeometry, numberOfThumbCells()) {
+        if layout.registerContainer(containerGeometry, viewModel.numberOfThumbCells()) {
+            //need to trigger a view reload... (not on this view build sequence)
             DispatchQueue.main.async {
                 self.viewModel.objectWillChange.send()
             }
@@ -47,16 +46,12 @@ struct MyPageView: View {
             GeometryReader { scrollContentGeometry in
                 grid(containerGeometry, scrollContentGeometry)
             }
-            .frame(width: viewModel.layout.width,
-                   height: viewModel.layout.height)
+            .frame(width: layout.width,
+                   height: layout.height)
             .listRowInsets(EdgeInsets())
             .listRowSeparator(.hidden)
         }
         .listStyle(.plain)
-    }
-    
-    func numberOfThumbCells() -> Int {
-        return 118
     }
     
 }
