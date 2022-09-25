@@ -1,8 +1,8 @@
 //
 //  ThumbGrid.swift
-//  SlickThumbs
+//  SlickThumbnail
 //
-//  Created by Nick Raptis on 9/20/22.
+//  Created by Nick Raptis on 9/24/22.
 //
 
 import SwiftUI
@@ -11,9 +11,9 @@ protocol ThumbGridConforming: Identifiable {
     var index: Int { get }
 }
 
-struct ThumbGrid<Item, ItemView>: View where ItemView: View, Item: ThumbGridConforming {
+struct ThumbGrid<Item, ItemView>: View where Item: ThumbGridConforming, ItemView: View {
     
-    let items: [Item]
+    let list: [Item]
     let layout: GridLayout
     let content: (Item) -> ItemView
     
@@ -24,7 +24,7 @@ struct ThumbGrid<Item, ItemView>: View where ItemView: View, Item: ThumbGridConf
     }
     
     var body: some View {
-        ForEach(items) { item in
+        ForEach(list) { item in
             thumb(item: item)
         }
     }

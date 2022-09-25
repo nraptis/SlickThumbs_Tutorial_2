@@ -1,13 +1,13 @@
 //
 //  MyPageModel.swift
-//  SlickThumbs
+//  SlickThumbnail
 //
-//  Created by Nick Raptis on 9/20/22.
+//  Created by Nick Raptis on 9/23/22.
 //
 
 import Foundation
 
-enum ThumbError: Error {
+enum ServiceError: Error {
     case any
 }
 
@@ -15,58 +15,56 @@ class MyPageModel {
     
     private let allEmojis = "🚙🤗🦊🪗🪕🎻🐻‍❄️🚘🚕🏈⚾️🙊🙉🌲😄😁😆🚖🏎🚚🛻🎾🏐🥏🏓🥁😋🛩🚁🦓🦍🦧😌😛😎🥸🤩🦬🐃🦙🐐☹️😣😖😭🦣🦏🐪⛴🚢🚂🚝🚅😟😕🙁😤🎺🐎🐖🐏🐑🐶🐱🐭🍀🍁🍄🌾☁️🌦🌧⛈😅😂🤣🥲☺️🚛🚐🚓🥺😢🦎🦖🦕🥰😘😗😙🛸🚲☔️🐻🐼🐘🦛😍😚😠😡🤯💦🌊☂️🚤🛥🛳🚆🦇🐢🐍🐅🐆🛫🛬🏍🛶⛵️😳🥶😥🚗😓🐨🐯🦅🦉🐫🦒🙃😉🥳😏🐓🐁❄️💨💧🐰🦁🐮🥌🏂😔🏀⚽️🎼🎤🎹🪘🐥🐣🐂🐄🐵🙈🤭🤫🥀🌨🌫🦮🐈🦤😯😧✈️🚊🚔😝😜🤪🤨🐀🐒🦆🧐🤓🕊🦝🦨🦡😫😩🚉😴🤮🌺🌸😬🙄🥱🚀🚇🛺😞🤥😷🦌🐕🌴🌿☘️☀️🌤⛅️🌥😀😃🐩🦢🥅⛷🎳🚑🚒🚜🌷🌹🌼😇🙂🤧🦘🦩🦫🦦😊🤒🤠🐹🐷🐸🐲🌩🌪🦙🐐🦥🐿🦔💐🌻⛳️"
     
-    private var list = [ThumbModel?]()
-    
-    func clear() {
-        list.removeAll()
-    }
+    private var thumbModelList = [ThumbModel?]()
     
     var totalExpectedCount: Int {
         return allEmojis.count
     }
     
-    func thumbModel(at index: Int) -> ThumbModel? {
-        if index >= 0 && index < list.count {
-            return list[index]
+    func clear() {
+        thumbModelList.removeAll()
+    }
+    
+    func thumModel(_ index: Int) -> ThumbModel? {
+        if index >= 0 && index < thumbModelList.count {
+            return thumbModelList[index]
         }
         return nil
     }
     
-    func simulateRangeFetchComplete(at index: Int, withCount count: Int) {
-        
-        let newCapacity = index + count
-        if newCapacity < 0 { return }
+    private func simulateRangeFetchComplete(at index: Int, withCount count: Int) {
         
         let emojisArray = Array(allEmojis)
+        let capacity = index + count
         
-        if list.capacity < newCapacity {
-            list.reserveCapacity(newCapacity)
+        if capacity <= 0 { return }
+        if count > 8192 { return }
+        
+        if thumbModelList.capacity < capacity {
+            thumbModelList.reserveCapacity(capacity)
         }
-        
-        while list.count < newCapacity {
-            list.append(nil)
+        while thumbModelList.count < capacity {
+            thumbModelList.append(nil)
         }
         
         var index = index
-        while index < newCapacity {
-            if index >= 0 && index < emojisArray.count, list[index] == nil {
-                let newModel = ThumbModel(index: index, image: String(emojisArray[index]))
-                list[index] = newModel
+        while index < capacity {
+            if index >= 0 && index < totalExpectedCount, thumbModelList[index] == nil {
+                let newModel = ThumbModel(index: index, emoji: String(emojisArray[index]))
+                thumbModelList[index] = newModel
             }
             index += 1
         }
     }
     
-    func fetch(at index: Int, withCount count: Int, completion: @escaping ( Result<Void, ThumbError> ) -> Void) {
+    func fetch(at index: Int, withCount count: Int, completion: @escaping ( Result<Void, ServiceError> ) -> Void) {
         DispatchQueue.global(qos: .background).async {
             Thread.sleep(forTimeInterval: TimeInterval.random(in: 0.25...2.5))
             DispatchQueue.main.async {
                 self.simulateRangeFetchComplete(at: index, withCount: count)
-                completion(.success(()))
+                completion(.success( () ))
             }
         }
     }
     
-    
 }
-
