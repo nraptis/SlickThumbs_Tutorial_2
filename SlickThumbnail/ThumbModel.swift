@@ -10,9 +10,9 @@ import Foundation
 struct ThumbModel {
     
     static func mock() -> ThumbModel {
-        return ThumbModel(index: 0, emoji: "🔪")
+        return ThumbModel(index: 0, image: "🧫")
     }
     
     let index: Int
-    let emoji: String
+    let image: String
 }

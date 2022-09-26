@@ -20,7 +20,7 @@ struct MyPageView: View {
         layout.registerScrollContent(scrollContentGeometry)
         let allVisibleCellModels = layout.getAllVisibleCellModels()
         return ThumbGrid(list: allVisibleCellModels, layout: layout) { cellModel in
-            ThumbView(thumbModel: viewModel.thumbModel(cellModel.index),
+            ThumbView(thumbModel: viewModel.thumbModel(at: cellModel.index),
                       width: layout.getWidth(cellModel.index),
                       height: layout.getHeight(cellModel.index))
         }

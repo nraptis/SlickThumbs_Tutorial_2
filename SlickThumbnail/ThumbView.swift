@@ -17,7 +17,7 @@ struct ThumbView: View {
     
     private func thumbContent(_ thumbModel: ThumbModel) -> some View {
         ZStack {
-            Text("\(thumbModel.emoji)")
+            Text("\(thumbModel.image)")
                 .font(.system(size: width * 0.5))
         }
         .frame(width: width, height: height)
@@ -47,6 +47,6 @@ struct ThumbView_Previews: PreviewProvider {
     static var previews: some View {
         ThumbView(thumbModel: ThumbModel.mock(),
                   width: 100,
-                  height: 145)
+                  height: 140)
     }
 }

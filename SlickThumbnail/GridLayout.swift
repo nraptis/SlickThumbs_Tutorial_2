@@ -53,11 +53,13 @@ class GridLayout {
     private var _cellVisibleArray = [Bool]()
     
     private var _containerFrameInsetBySafeArea = CGRect.zero
-    private var _containerFrameWithoutSafeArea = CGRect.zero // expanded to not include the safe area insets (bigger)
+    private var _containerFrameWithoutSafeArea = CGRect.zero
+    
     
     private var _scrollContentFrame = CGRect.zero
     
     func registerContainer(_ containerGeometry: GeometryProxy, _ numberOfElements: Int) {
+        
         let newContainerFrameInsetBySafeArea = containerGeometry.frame(in: .global)
         
         let left = containerGeometry.safeAreaInsets.leading
@@ -67,8 +69,8 @@ class GridLayout {
         
         let expandedX = newContainerFrameInsetBySafeArea.minX - left
         let expandedY = newContainerFrameInsetBySafeArea.minY - top
-        let expandedWidth = newContainerFrameInsetBySafeArea.width + (left + right)
         let expandedHeight = newContainerFrameInsetBySafeArea.height + (top + bottom)
+        let expandedWidth = newContainerFrameInsetBySafeArea.width + (left + right)
         
         let newContainerFrameWithoutSafeArea = CGRect(x: expandedX,
                                                       y: expandedY,
@@ -76,7 +78,7 @@ class GridLayout {
                                                       height: expandedHeight)
         
         // Did something change? If so, we want to re-layout our grid!
-        if  newContainerFrameInsetBySafeArea != _containerFrameInsetBySafeArea ||
+        if newContainerFrameInsetBySafeArea != _containerFrameInsetBySafeArea ||
             newContainerFrameWithoutSafeArea != _containerFrameWithoutSafeArea ||
             numberOfElements != _numberOfElements {
             _containerFrameInsetBySafeArea = newContainerFrameInsetBySafeArea
@@ -92,66 +94,73 @@ class GridLayout {
         handleScrollContentDidChangePosition(_containerFrameWithoutSafeArea, _scrollContentFrame)
     }
     
-    // this is going to be used to clip content (visible / not-visible)
-    static let onScreenPadding = 64
+    //use for clipping (show and hide cells, notify which cells are visible...)
+    private static let onScreenPadding = -64
     private func handleScrollContentDidChangePosition(_ containerFrame: CGRect, _ scrollContentFrame: CGRect) {
         
-        //adjust container range by scroll content...
+        //container y range (adjusted by scroll offset)
         let containerTop = Int(containerFrame.minY - scrollContentFrame.minY) - Self.onScreenPadding
         let containerBottom = Int(containerFrame.maxY - scrollContentFrame.minY) + Self.onScreenPadding
         let containerRange = containerTop...containerBottom
         
-        var shouldRefreshVisibleCellIndices = false
+        var shouldRefreshFirstAndLastCellIndexOnScreen = false
         for rowIndex in 0..<_numberOfRows {
             
+            //row y range
             let rowTop = _cellYArray[rowIndex]
             let rowBottom = rowTop + cellHeight
             let rowRange = rowTop...rowBottom
             
             let overlap = containerRange.overlaps(rowRange)
             
-            let firstCellIndex = firstCellIndexOfRow(rowIndex)
-            let lastCellIndex = lastCellIndexOfRow(rowIndex)
+            let firstCellIndex = firstCellIndexOf(row: rowIndex)
+            let lastCellIndex = lastCellIndexOf(row: rowIndex)
             
             if overlap {
-                //we are visible
+                //we are visible!!!
                 if _rowVisibleArray[rowIndex] == false {
                     _rowVisibleArray[rowIndex] = true
+                    
                     for cellIndex in firstCellIndex...lastCellIndex {
                         _cellVisibleArray[cellIndex] = true
                     }
                     delegate?.cellsDidEnterScreen(firstCellIndex, lastCellIndex)
-                    shouldRefreshVisibleCellIndices = true
+                    shouldRefreshFirstAndLastCellIndexOnScreen = true
                 }
             } else {
-                //we are invisible
+                //we are off screen!!!
                 if _rowVisibleArray[rowIndex] == true {
                     _rowVisibleArray[rowIndex] = false
+                    
                     for cellIndex in firstCellIndex...lastCellIndex {
                         _cellVisibleArray[cellIndex] = false
                     }
                     delegate?.cellsDidLeaveScreen(firstCellIndex, lastCellIndex)
-                    shouldRefreshVisibleCellIndices = true
+                    shouldRefreshFirstAndLastCellIndexOnScreen = true
                 }
             }
         }
-        if shouldRefreshVisibleCellIndices {
+        if shouldRefreshFirstAndLastCellIndexOnScreen {
             refreshFirstAndLastCellIndexOnScreen()
         }
     }
     
     private func hideAllVisibleCells() {
+        var shouldRefreshFirstAndLastCellIndexOnScreen = false
         for rowIndex in 0..<_numberOfRows {
             if _rowVisibleArray[rowIndex] {
                 _rowVisibleArray[rowIndex] = false
-                let firstCellIndex = firstCellIndexOfRow(rowIndex)
-                let lastCellIndex = lastCellIndexOfRow(rowIndex)
-                
+                let firstCellIndex = firstCellIndexOf(row: rowIndex)
+                let lastCellIndex = lastCellIndexOf(row: rowIndex)
                 for cellIndex in firstCellIndex...lastCellIndex {
                     _cellVisibleArray[cellIndex] = false
                 }
                 delegate?.cellsDidLeaveScreen(firstCellIndex, lastCellIndex)
+                shouldRefreshFirstAndLastCellIndexOnScreen = true
             }
+        }
+        if shouldRefreshFirstAndLastCellIndexOnScreen {
+            refreshFirstAndLastCellIndexOnScreen()
         }
     }
     
@@ -193,11 +202,11 @@ class GridLayout {
         return 0
     }
     
-    func firstCellIndexOfRow(_ rowIndex: Int) -> Int {
+    func firstCellIndexOf(row rowIndex: Int) -> Int {
         _numberOfCols * rowIndex
     }
     
-    func lastCellIndexOfRow(_ rowIndex: Int) -> Int {
+    func lastCellIndexOf(row rowIndex: Int) -> Int {
         (_numberOfCols * rowIndex) + (_numberOfCols - 1)
     }
     
@@ -206,21 +215,21 @@ class GridLayout {
     }
     
     func lastCellIndexOnScreen() -> Int {
-        _lastCellIndexOnScreen
+        return _lastCellIndexOnScreen
     }
     
-    private func refreshFirstAndLastCellIndexOnScreen() {
+    func refreshFirstAndLastCellIndexOnScreen() {
         _firstCellIndexOnScreen = 0
         _lastCellIndexOnScreen = 0
         var found = false
         for rowIndex in 0..<_numberOfRows {
             if _rowVisibleArray[rowIndex] {
-                if found == false {
-                    _firstCellIndexOnScreen = firstCellIndexOfRow(rowIndex)
-                    _lastCellIndexOnScreen = lastCellIndexOfRow(rowIndex)
+                if !found {
+                    _firstCellIndexOnScreen = firstCellIndexOf(row: rowIndex)
+                    _lastCellIndexOnScreen = lastCellIndexOf(row: rowIndex)
                     found = true
                 } else {
-                    _lastCellIndexOnScreen = lastCellIndexOfRow(rowIndex)
+                    _lastCellIndexOnScreen = lastCellIndexOf(row: rowIndex)
                 }
             }
         }
@@ -230,7 +239,7 @@ class GridLayout {
     func getAllVisibleCellModels() -> [ThumbGridCellModel] {
         _allVisibleCellModels.removeAll(keepingCapacity: true)
         for index in 0..<_numberOfElements {
-            if index < _cellVisibleArray.count, _cellVisibleArray[index] == true {
+            if index < _cellVisibleArray.count, _cellVisibleArray[index] {
                 let newModel = ThumbGridCellModel(index: index)
                 _allVisibleCellModels.append(newModel)
             }
@@ -381,6 +390,7 @@ extension GridLayout {
         if _rowVisibleArray.count != _numberOfRows {
             _rowVisibleArray = [Bool](repeating: false, count: _numberOfRows)
         }
+        
         let numberOfCells = _numberOfRows * _numberOfCols
         if _cellVisibleArray.count != numberOfCells {
             _cellVisibleArray = [Bool](repeating: false, count: numberOfCells)

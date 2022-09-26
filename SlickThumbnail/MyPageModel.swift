@@ -17,40 +17,39 @@ class MyPageModel {
     
     private var thumbModelList = [ThumbModel?]()
     
-    var totalExpectedCount: Int {
-        return allEmojis.count
-    }
-    
-    func clear() {
-        thumbModelList.removeAll()
-    }
-    
-    func thumModel(_ index: Int) -> ThumbModel? {
+    func thumbModel(at index: Int) -> ThumbModel? {
         if index >= 0 && index < thumbModelList.count {
             return thumbModelList[index]
         }
         return nil
     }
     
+    func clear() {
+        thumbModelList.removeAll()
+    }
+    
+    var totalExpectedCount: Int {
+        return 118
+    }
+    
     private func simulateRangeFetchComplete(at index: Int, withCount count: Int) {
+        let newCapacity = index + count
         
-        let emojisArray = Array(allEmojis)
-        let capacity = index + count
-        
-        if capacity <= 0 { return }
+        if newCapacity <= 0 { return }
+        guard count > 0 else { return }
+        guard index < allEmojis.count else { return }
         if count > 8192 { return }
         
-        if thumbModelList.capacity < capacity {
-            thumbModelList.reserveCapacity(capacity)
-        }
-        while thumbModelList.count < capacity {
+        let emojisArray = Array(allEmojis)
+        
+        while thumbModelList.count < newCapacity {
             thumbModelList.append(nil)
         }
         
         var index = index
-        while index < capacity {
-            if index >= 0 && index < totalExpectedCount, thumbModelList[index] == nil {
-                let newModel = ThumbModel(index: index, emoji: String(emojisArray[index]))
+        while index < newCapacity {
+            if index >= 0 && index < emojisArray.count, thumbModelList[index] == nil {
+                let newModel = ThumbModel(index: index, image: String(emojisArray[index]))
                 thumbModelList[index] = newModel
             }
             index += 1
@@ -65,6 +64,7 @@ class MyPageModel {
                 completion(.success( () ))
             }
         }
+        
     }
     
 }
